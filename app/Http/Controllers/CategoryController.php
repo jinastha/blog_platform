@@ -103,13 +103,13 @@ class CategoryController extends Controller
             $validator = Validator::make($request->all(), [
                 "title" => "required",
                 "content"=> "required",
-                "user_id"=> "reqired",
+                "user_id"=> "required",
             ]);
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 422);
             }
 
-            $create = $request->only('slug', 'language');
+            $create = $request->only('title', 'content', 'user_id');
             $this->category->update($category->id, $create);
             return $this->message('Category Updated Successfully', 200, $context);
         } catch (ModelNotFoundException $ex) {

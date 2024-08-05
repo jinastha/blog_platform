@@ -56,6 +56,7 @@ Route::group(['prefix' => "categories"], function () {
     Route::group(['middleware' => ['auth:api']], function () {
         Route::get('/', 'CategoryController@index');
         Route::post('/', 'CategoryController@store');
+        Route::get('/list', 'CategoryController@list');
         Route::get('/{id}', 'CategoryController@show');
         Route::patch('/{id}', 'CategoryController@update');
         Route::delete('/{id}', 'CategoryController@delete');
@@ -66,6 +67,7 @@ Route::group(['prefix' => "tags"], function () {
     Route::group(['middleware' => ['auth:api']], function () {
         Route::get('/', 'TagController@index');
         Route::post('/', 'TagController@store');
+        Route::get('/list', 'TagController@list');
         Route::get('/{id}', 'TagController@show');
         Route::patch('/{id}', 'TagController@update');
         Route::delete('/{id}', 'TagController@delete');
