@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PostController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -44,8 +45,10 @@ Route::group(['prefix' => "posts"], function () {
         Route::post('/', 'PostController@store');
         Route::get('/list', 'PostController@list');
         Route::get('/{id}', 'PostController@show');
-        Route::patch('/{id}', 'PostController@update');
-        Route::delete('/{id}', 'PostController@delete');
+        // Route::patch('/{id}', 'PostController@update');
+        // Route::delete('/{id}', 'PostController@delete');
+        Route::patch('/{id}', [PostController::class, 'update']);
+        Route::delete('/{id}', [PostController::class, 'delete']);
         Route::post('/{post_id}/comments', 'CommentController@store');
     });
 });

@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
@@ -56,6 +57,10 @@ class Handler extends ExceptionHandler
                 'message' => 'Unauthorized',
                 'error' => $exception->getMessage()
             ], 401);
+        }
+
+        if ($exception instanceof AuthorizationException) {
+            return response()->json(['error' => 'You are not authorized to perform this action.'], 403);
         }
 
         if (config('app.debug')) {

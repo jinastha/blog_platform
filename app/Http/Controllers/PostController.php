@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Post;
 use App\Repo\Interfaces\PostInterface;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -99,8 +101,9 @@ class PostController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $id, Post $posts)
     {
+        $this->authorize('update', $posts);
         $context = "Update post";
         $post = $this->post->getSpecificById($id);
 
@@ -123,23 +126,27 @@ class PostController extends Controller
             return $this->message('No record found', 404,$context);
         } catch (QueryException $exception) {
             return $this->message($exception->getTraceAsString(), 521, $context, "Something went wrong.");
+        } catch (AuthorizationException $e) {
+            return $this->message($e->getMessage(), 403, $context, 'You do not have permission to update this post.');
         } catch (\Exception $ex) {
             return $this->message($ex->getMessage(), 500, $context, $ex->getMessage());
         }
     }
 
-    public function delete($id)
+    public function delete($id, Post $post)
     {
         $context = "Delete post";
         try {
+            $this->authorize('delete', $post);
             $post = $this->post->getSpecificByIdOrSlug($id);
-
             $this->post->delete($post->id);
             return $this->message('Post Deleted Successfully', 200, $context);
         } catch (ModelNotFoundException $ex) {
             return $this->message('No record found', 404, $context);
         } catch (QueryException $exception) {
             return $this->message($exception->getTraceAsString(), 521, $context, "Something went wrong.");
+        } catch (AuthorizationException $e) {
+            return $this->message($e->getMessage(), 403, $context, 'You do not have permission to update this post.');
         } catch (\Exception $ex) {
             return $this->message($ex->getMessage(), 500, $context, "Something went wrong.");
         }
