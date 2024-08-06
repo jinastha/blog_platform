@@ -146,7 +146,7 @@ class PostController extends Controller
         } catch (QueryException $exception) {
             return $this->message($exception->getTraceAsString(), 521, $context, "Something went wrong.");
         } catch (AuthorizationException $e) {
-            return $this->message($e->getMessage(), 403, $context, 'You do not have permission to update this post.');
+            return $this->message($e->getMessage(), 403, $context, 'You do not have permission to delete');
         } catch (\Exception $ex) {
             return $this->message($ex->getMessage(), 500, $context, "Something went wrong.");
         }

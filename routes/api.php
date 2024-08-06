@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +34,7 @@ Route::group(['prefix' => "user"], function () {
         Route::post('account/v1/users', 'UserController@store');
         Route::get('account/v1/users/{id}', 'UserController@show');
         Route::patch('account/v1/users/{id}', 'UserController@update');
+        Route::patch('account/v1/users/{id}/profile', [UserController::class, 'updateProfilePicture']);
         Route::delete('account/v1/users/{id}', 'UserController@delete');
         Route::patch('account/v1/users/{id}/password', 'UserController@changePwd');
     });

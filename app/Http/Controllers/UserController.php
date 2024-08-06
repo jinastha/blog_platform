@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Repo\Interfaces\UserInterface;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
@@ -119,11 +121,22 @@ class UserController extends Controller
                 "name" => "sometimes|string",
                 "username" => "sometimes|string|unique:users,username,$user->id,id|min:4|max:32|regex:/^[a-z0-9_.]+$/",
                 "email" => "sometimes|email|unique:users,email,$user->id,id",
+                "bio" => "nullable|string",
+                "profile_picture" => "nullable|image",
             ]);
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 422);
             }
-            $create = $request->only('name', 'username', 'email');
+            $create = $request->only('name', 'username', 'email', 'bio');
+            if ($request->hasFile('profile_picture')) {
+                // Delete old profile picture if exists
+                if ($user->profile_picture) {
+                    Storage::delete('public/profile_pictures/' . $user->profile_picture);
+                }
+    
+                $path = $request->file('profile_picture')->store('public/profile_pictures');
+                $create['profile_picture'] = basename($path);
+            }
             $user = $this->user->update($user->id, $create);
             return $this->message("User updated successfully", 200, $context);
         } catch (ModelNotFoundException $ex) {
@@ -180,6 +193,43 @@ class UserController extends Controller
             return $this->message($exception->getTraceAsString(), 521, $context, "Something went wrong.");
         } catch (\Exception $ex) {
             return $this->message($ex->getMessage(), 500,  $context, "Something went wrong.");
+        }
+    }
+
+    public function updateProfilePicture($id, Request $request)
+    {
+        $context = "Update User";
+        try {
+            $user = $this->user->getSpecificById($id);
+
+            $this->authorize('updateProfilePicture', $user);
+            $validator = Validator::make($request->all(), [
+                "bio" => "nullable|string",
+                "profile_picture" => "nullable|image",
+            ]);
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 422);
+            }
+            $create = $request->only('bio');
+            if ($request->hasFile('profile_picture')) {
+                // Delete old profile picture if exists
+                if ($user->profile_picture) {
+                    Storage::delete('public/profile_pictures/' . $user->profile_picture);
+                }
+    
+                $path = $request->file('profile_picture')->store('public/profile_pictures/');
+                $create['profile_picture'] = basename($path);
+            }
+            $user = $this->user->update($user->id, $create);
+            return $this->message("User updated successfully", 200, $context);
+        } catch (ModelNotFoundException $ex) {
+            return $this->message("No record found", 404, $context);
+        } catch (QueryException $exception) {
+            return $this->message($exception->getTraceAsString(), 521, $context, "Something went wrong.");
+        } catch (AuthorizationException $e) {
+            return $this->message($e->getMessage(), 403, $context, 'You do not have permission to update.');
+        } catch (\Exception $ex) {
+            return $this->message($ex->getMessage(), 500, $context, "Something went wrong.");
         }
     }
 

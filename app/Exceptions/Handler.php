@@ -52,6 +52,13 @@ class Handler extends ExceptionHandler
             return response()->json(['error' => 'Route not found'], 404);
         }
 
+        if ($exception->getMessage() === 'Route [login] not defined.') {
+            return response()->json([
+                'message' => 'Unauthorized',
+                'error' => 'Authentication required'
+            ], 401);
+        }
+
         if ($exception instanceof AuthenticationException || $exception instanceof UnauthorizedHttpException || $exception instanceof TokenExpiredException || $exception instanceof TokenInvalidException || $exception instanceof JWTException) {
             return response()->json([
                 'message' => 'Unauthorized',
