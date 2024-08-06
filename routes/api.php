@@ -47,8 +47,6 @@ Route::group(['prefix' => "posts"], function () {
         Route::patch('/{id}', 'PostController@update');
         Route::delete('/{id}', 'PostController@delete');
         Route::post('/{post_id}/comments', 'CommentController@store');
-        Route::patch('/{post_id}/comments/{id}', 'CommentController@update');
-        Route::delete('/{post_id}/comments/{id}', 'CommentController@delete');
     });
 });
 
@@ -74,4 +72,11 @@ Route::group(['prefix' => "tags"], function () {
     });
 });
 
+Route::group(['prefix' => "comments"], function () {
+    Route::group(['middleware' => ['auth:api']], function () {
+        Route::post('/{id}', 'CommentController@update');
+        Route::get('/{id}', 'CommentController@show');
+        Route::delete('/{id}', 'CommentController@delete');
+    });
+});
 

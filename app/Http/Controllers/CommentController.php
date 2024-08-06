@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Repo\Interfaces\CommentInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\UnauthorizedException;
@@ -29,7 +30,6 @@ class CommentController extends Controller
         try {
             $create = $request->all();
             $create['post_id'] = $post_id;
-
             $created = $this->comment->create($create);
             $response = [
                 "msg" => "Comment Successfully posted.",
@@ -37,18 +37,34 @@ class CommentController extends Controller
             ];
 
             return $this->response($response, 200, $context);
-        } catch (\Exception $ex) {  dd($ex);
+        } catch (\Exception $ex) {
             return $this->message($ex->getMessage(), 500, $context, $ex->getMessage());
         }
     }
 
-    public function update($id, $post_id, Request $request)
+    public function show($id)
+    {
+        $context = "Show comments";
+        try {
+            $data = $this->comment->getSpecificById($id);
+            return $this->response($data, 200, $context);
+        } catch (ModelNotFoundException $ex) {
+            return $this->message('No record found', 404, $context);
+        } catch (QueryException $exception) {
+            return $this->message($exception->getTraceAsString(), 521, $context, "Something went wrong.");
+        } catch (\Exception $ex) {
+            return $this->message($ex->getMessage(), 500, $context, 'Something went wrong');
+        }
+    }
+
+    public function update($id, Request $request)
     {
         $context = "update comments";
         $data = $this->comment->getById($id);
         $validator = Validator::make($request->all(), [
-            'comment' => 'required',
-            'user_id'   => 'required',
+            'comment' => 'sometimes',
+            'user_id'   => 'sometimes',
+            'post_id'   => 'sometimes'
         ]);
 
         if ($validator->fails()) {
@@ -57,7 +73,6 @@ class CommentController extends Controller
 
         try {
             $create = $request->all();
-            $create['post_id'] = $post_id;
             $this->comment->update($id, $create);
             return $this->message('Comment Successfully updated.', 200, $context);
         } catch (UnauthorizedException $ex) {

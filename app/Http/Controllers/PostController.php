@@ -75,9 +75,9 @@ class PostController extends Controller
             $post->tags()->sync($request->input('tag'));
             $post->categories()->sync($request->input('category'));
             return $this->message('Post Added Successfully', 200, $context);
-        } catch (QueryException $exception) { dd($exception);
+        } catch (QueryException $exception) {
             return $this->message($exception->getTraceAsString(), 521, $context, "Something went wrong.");
-        } catch (\Exception $ex) { dd($ex);
+        } catch (\Exception $ex) {
             return $this->message($ex->getMessage(), 500, $context, 'Something went wrong');
         }
     }

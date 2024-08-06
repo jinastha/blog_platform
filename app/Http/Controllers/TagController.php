@@ -70,7 +70,7 @@ class TagController extends Controller
             $create = $request->all();
             $this->tag->create($create);
             return $this->message('Tag Added Successfully', 200, $context);
-        } catch (QueryException $exception) { dd($exception);
+        } catch (QueryException $exception) {
             return $this->message($exception->getTraceAsString(), 521, $context, "Something went wrong.");
         } catch (\Exception $ex) {
             return $this->message($ex->getMessage(), 500, $context, 'Something went wrong');
