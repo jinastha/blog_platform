@@ -20,7 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
+Route::post('user/account/v1/users', 'UserController@store');
 Route::post('user/account/v1/users/login', 'LoginController@userLogin');
 Route::post('user/account/v1/users/refresh', 'LoginController@refresh');
 Route::post('user/account/v1/users/logout', 'LoginController@logout');
@@ -31,7 +31,7 @@ Route::group(['prefix' => "user"], function () {
         Route::post('user/account/v1/users/logout', 'LoginController@logout');
         Route::get('account/v1/users/lists', 'UserController@userList');
         Route::get('account/v1/users', 'UserController@index');
-        Route::post('account/v1/users', 'UserController@store');
+        // Route::post('account/v1/users', 'UserController@store');
         Route::get('account/v1/users/{id}', 'UserController@show');
         Route::patch('account/v1/users/{id}', 'UserController@update');
         Route::patch('account/v1/users/{id}/profile', [UserController::class, 'updateProfilePicture']);
